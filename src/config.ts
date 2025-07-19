@@ -54,10 +54,12 @@ export function validateModelConfig(runtime?: IAgentRuntime): ModelConfig {
     // If not set, let the runtime handle embeddings (e.g., plugin-google-genai)
     const finalEmbeddingProvider = embeddingProvider;
 
-    const textEmbeddingModel =
-      getSetting('TEXT_EMBEDDING_MODEL') ||
-      getSetting('OPENAI_EMBEDDING_MODEL') ||
-      'text-embedding-3-small';
+    // For Ollama, use OLLAMA_EMBEDDING_MODEL, otherwise use TEXT_EMBEDDING_MODEL
+    const textEmbeddingModel = embeddingProvider === 'ollama' 
+      ? (getSetting('OLLAMA_EMBEDDING_MODEL') || 'nomic-embed-text')
+      : (getSetting('TEXT_EMBEDDING_MODEL') ||
+         getSetting('OPENAI_EMBEDDING_MODEL') ||
+         'text-embedding-3-small');
     const embeddingDimension =
       getSetting('EMBEDDING_DIMENSION') || getSetting('OPENAI_EMBEDDING_DIMENSIONS') || '1536';
 
@@ -72,11 +74,14 @@ export function validateModelConfig(runtime?: IAgentRuntime): ModelConfig {
       ANTHROPIC_API_KEY: getSetting('ANTHROPIC_API_KEY'),
       OPENROUTER_API_KEY: getSetting('OPENROUTER_API_KEY'),
       GOOGLE_API_KEY: getSetting('GOOGLE_API_KEY'),
+      LOCALAI_API_KEY: getSetting('LOCALAI_API_KEY'),
+      OLLAMA_API_KEY: getSetting('OLLAMA_API_KEY'),
 
       OPENAI_BASE_URL: getSetting('OPENAI_BASE_URL'),
       ANTHROPIC_BASE_URL: getSetting('ANTHROPIC_BASE_URL'),
       OPENROUTER_BASE_URL: getSetting('OPENROUTER_BASE_URL'),
       GOOGLE_BASE_URL: getSetting('GOOGLE_BASE_URL'),
+      OLLAMA_BASE_URL: getSetting('OLLAMA_API_ENDPOINT') || getSetting('OLLAMA_BASE_URL') || 'http://localhost:11434',
 
       TEXT_EMBEDDING_MODEL: textEmbeddingModel,
       TEXT_MODEL: getSetting('TEXT_MODEL'),
@@ -120,6 +125,15 @@ function validateConfigRequirements(config: ModelConfig, assumePluginOpenAI: boo
     throw new Error('GOOGLE_API_KEY is required when EMBEDDING_PROVIDER is set to "google"');
   }
 
+  if (embeddingProvider === 'ollama') {
+    // Ollama often doesn't require a real API key, so we'll just log a warning
+    if (!config.OLLAMA_API_KEY) {
+      logger.warn('OLLAMA_API_KEY not provided - using dummy key (this is often fine for Ollama)');
+    }
+    // Ollama uses model names from @elizaos/plugin-ollama
+    logger.info('Ollama embedding uses model names (OLLAMA_EMBEDDING_MODEL) from @elizaos/plugin-ollama');
+  }
+
   // If no embedding provider is set, skip validation - let runtime handle it
   if (!embeddingProvider) {
     logger.debug(
@@ -150,6 +164,19 @@ function validateConfigRequirements(config: ModelConfig, assumePluginOpenAI: boo
     }
     if (config.TEXT_PROVIDER === 'google' && !config.GOOGLE_API_KEY) {
       throw new Error('GOOGLE_API_KEY is required when TEXT_PROVIDER is set to "google"');
+    }
+
+    if (config.TEXT_PROVIDER === 'ollama') {
+      // Ollama often doesn't require a real API key, so we'll just log a warning
+      if (!config.OLLAMA_API_KEY) {
+        logger.warn('OLLAMA_API_KEY not provided - using dummy key (this is often fine for Ollama)');
+      }
+      // Check for existing Ollama configuration
+      if (config.OLLAMA_BASE_URL && config.OLLAMA_BASE_URL !== 'http://localhost:11434/v1') {
+        logger.info(`Using Ollama configuration: ${config.OLLAMA_BASE_URL}`);
+      } else {
+        logger.info('OLLAMA_BASE_URL not provided - using default http://localhost:11434/v1');
+      }
     }
 
     // If using OpenRouter with Claude or Gemini models, check for additional recommended configurations
