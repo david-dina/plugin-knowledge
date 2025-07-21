@@ -15,7 +15,6 @@ export const ModelConfigSchema = z.object({
   ANTHROPIC_API_KEY: z.string().optional(),
   OPENROUTER_API_KEY: z.string().optional(),
   GOOGLE_API_KEY: z.string().optional(),
-  LOCALAI_API_KEY: z.string().optional(),
   OLLAMA_API_KEY: z.string().optional(),
 
   // Base URLs (optional for most providers)

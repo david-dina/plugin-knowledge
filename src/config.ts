@@ -74,7 +74,6 @@ export function validateModelConfig(runtime?: IAgentRuntime): ModelConfig {
       ANTHROPIC_API_KEY: getSetting('ANTHROPIC_API_KEY'),
       OPENROUTER_API_KEY: getSetting('OPENROUTER_API_KEY'),
       GOOGLE_API_KEY: getSetting('GOOGLE_API_KEY'),
-      LOCALAI_API_KEY: getSetting('LOCALAI_API_KEY'),
       OLLAMA_API_KEY: getSetting('OLLAMA_API_KEY'),
 
       OPENAI_BASE_URL: getSetting('OPENAI_BASE_URL'),
