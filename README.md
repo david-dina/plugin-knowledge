@@ -130,6 +130,32 @@ OPENROUTER_API_KEY=your-openrouter-api-key
 </details>
 
 <details>
+<summary><strong>🦙 Ollama Setup</strong></summary>
+
+### Environment Configuration
+
+```env
+# Ollama Configuration (uses some of the same config as @elizaos/plugin-ollama)
+OLLAMA_API_ENDPOINT=http://localhost:11434/api
+
+# These are the additional configs you need for knowledge plugin:
+EMBEDDING_PROVIDER=ollama
+OLLAMA_EMBEDDING_MODEL=nomic-embed-text  # Default: nomic-embed-text
+TEXT_PROVIDER=ollama
+
+You can also use below as a replacement for the above api endpoint:
+OLLAMA_BASE_URL=http://localhost:11434
+```
+
+### Troubleshooting Ollama
+
+- **Connection refused:** Make sure Ollama is running on `http://localhost:11434`
+- **Slow performance:** Use smaller models or increase system resources
+- **Plugin not found:** Make sure `@elizaos/plugin-ollama` is in your agent's plugins list
+
+</details>
+
+<details>
 <summary><strong>⚙️ Custom Configuration Options</strong></summary>
 
 ### Document Loading
@@ -143,7 +169,7 @@ KNOWLEDGE_PATH=/custom/path        # Custom document path (default: ./docs)
 
 ```env
 # Only needed if you're not using a standard AI plugin
-EMBEDDING_PROVIDER=openai          # openai | google
+EMBEDDING_PROVIDER=openai          # openai | google | ollama
 TEXT_EMBEDDING_MODEL=text-embedding-3-small
 EMBEDDING_DIMENSION=1536           # Vector dimension
 ```
@@ -151,7 +177,7 @@ EMBEDDING_DIMENSION=1536           # Vector dimension
 ### Text Generation (for Contextual Mode)
 
 ```env
-TEXT_PROVIDER=openrouter           # openai | anthropic | openrouter | google
+TEXT_PROVIDER=openrouter           # openai | anthropic | openrouter | google | ollama
 TEXT_MODEL=anthropic/claude-3.5-sonnet
 ```
 
@@ -162,6 +188,7 @@ OPENAI_API_KEY=sk-...
 ANTHROPIC_API_KEY=sk-ant-...
 OPENROUTER_API_KEY=sk-or-...
 GOOGLE_API_KEY=your-key
+OLLAMA_API_KEY=dummy-key  # Often not needed for local Ollama
 ```
 
 ### Performance Tuning
@@ -225,7 +252,7 @@ const searchResults = await knowledgeService.searchKnowledge({
 
 **"Knowledge plugin failed to initialize"**
 
-- Make sure you have an AI provider plugin (openai, google-genai, etc.)
+- Make sure you have an AI provider plugin (openai, google-genai, ollama, etc.)
 - Check that your AI provider has valid API keys
 
 **"Documents not loading automatically"**
