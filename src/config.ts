@@ -80,7 +80,7 @@ export function validateModelConfig(runtime?: IAgentRuntime): ModelConfig {
       ANTHROPIC_BASE_URL: getSetting('ANTHROPIC_BASE_URL'),
       OPENROUTER_BASE_URL: getSetting('OPENROUTER_BASE_URL'),
       GOOGLE_BASE_URL: getSetting('GOOGLE_BASE_URL'),
-      OLLAMA_BASE_URL: getSetting('OLLAMA_API_ENDPOINT') || getSetting('OLLAMA_BASE_URL') || 'http://localhost:11434',
+      OLLAMA_BASE_URL: getSetting('OLLAMA_BASE_URL') || getSetting('OLLAMA_API_ENDPOINT')?.replace('/api', '') || 'http://localhost:11434',
 
       TEXT_EMBEDDING_MODEL: textEmbeddingModel,
       TEXT_MODEL: getSetting('TEXT_MODEL'),
@@ -171,10 +171,10 @@ function validateConfigRequirements(config: ModelConfig, assumePluginOpenAI: boo
         logger.warn('OLLAMA_API_KEY not provided - using dummy key (this is often fine for Ollama)');
       }
       // Check for existing Ollama configuration
-      if (config.OLLAMA_BASE_URL && config.OLLAMA_BASE_URL !== 'http://localhost:11434/v1') {
+      if (config.OLLAMA_BASE_URL && config.OLLAMA_BASE_URL !== 'http://localhost:11434') {
         logger.info(`Using Ollama configuration: ${config.OLLAMA_BASE_URL}`);
       } else {
-        logger.info('OLLAMA_BASE_URL not provided - using default http://localhost:11434/v1');
+        logger.info('OLLAMA_BASE_URL not provided - using default http://localhost:11434');
       }
     }
 

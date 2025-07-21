@@ -23,6 +23,7 @@ export const ModelConfigSchema = z.object({
   OPENROUTER_BASE_URL: z.string().optional(),
   GOOGLE_BASE_URL: z.string().optional(),
   OLLAMA_BASE_URL: z.string().optional(),
+  OLLAMA_API_ENDPOINT: z.string().optional(),
 
   // Model names
   TEXT_EMBEDDING_MODEL: z.string(),
