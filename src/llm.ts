@@ -39,10 +39,8 @@ export async function generateTextEmbedding(
   try {
     if (config.EMBEDDING_PROVIDER === 'openai') {
       return await generateOpenAIEmbedding(text, config, dimensions);
-    } else if (config.EMBEDDING_PROVIDER === 'google') {
+        } else if (config.EMBEDDING_PROVIDER === 'google') {
       return await generateGoogleEmbedding(text, config);
-    } else if (config.EMBEDDING_PROVIDER === 'ollama') {
-      return await generateOllamaEmbedding(text, config, dimensions);
     }
 
     throw new Error(`Unsupported embedding provider: ${config.EMBEDDING_PROVIDER}`);
@@ -204,45 +202,6 @@ async function generateGoogleEmbedding(
 }
 
 /**
- * Generates an embedding using Ollama
- */
-async function generateOllamaEmbedding(
-  text: string,
-  config: ModelConfig,
-  dimensions: number
-): Promise<{ embedding: number[] }> {
-  try {
-    // Use the same approach as plugin-ollama
-    const { createOllama } = await import('ollama-ai-provider');
-    const { embed } = await import('ai');
-    
-    const baseURL = config.OLLAMA_BASE_URL || 'http://localhost:11434';
-    const apiBase = baseURL.endsWith('/api') ? baseURL.slice(0, -4) : baseURL;
-    
-    const ollama = createOllama({
-      baseURL: apiBase
-    });
-    
-    const modelName = cleanModelName(config.TEXT_EMBEDDING_MODEL || 'nomic-embed-text');
-    logger.debug(`[Document Processor] Ollama embedding with model: ${modelName}`);
-    
-    const { embedding } = await embed({
-      model: ollama.embedding(modelName),
-      value: text
-    });
-
-    logger.debug(
-      `[Document Processor] Ollama embedding ${modelName}: ${embedding.length} dimensions`
-    );
-
-    return { embedding };
-  } catch (error) {
-    logger.error(`[Document Processor] Ollama embedding error:`, error);
-    throw error;
-  }
-}
-
-/**
  * Generates text using the configured provider
  * @param prompt The prompt text
  * @param system Optional system message
@@ -305,8 +264,6 @@ export async function generateText(
         );
       case 'google':
         return await generateGoogleText(prompt, system, modelName!, maxTokens, config);
-      case 'ollama':
-        return await generateOllamaText(config, prompt, system, modelName!, maxTokens);
       default:
         throw new Error(`Unsupported text provider: ${provider}`);
     }
@@ -748,64 +705,5 @@ function logCacheMetrics(result: GenerateTextResult<any, any>): void {
     logger.debug(
       `[Document Processor] Cache metrics - tokens: ${(result.usage as any).cacheTokens}, discount: ${(result.usage as any).cacheDiscount}`
     );
-  }
-}
-
-/**
- * Generates text using Ollama
- */
-async function generateOllamaText(
-  config: ModelConfig,
-  prompt: string,
-  system: string | undefined,
-  modelName: string,
-  maxTokens: number
-): Promise<GenerateTextResult<any, any>> {
-  try {
-    // Use the same approach as plugin-ollama
-    const { createOllama } = await import('ollama-ai-provider');
-    const { generateText } = await import('ai');
-    
-    const baseURL = config.OLLAMA_BASE_URL || 'http://localhost:11434';
-    const apiBase = baseURL.endsWith('/api') ? baseURL.slice(0, -4) : baseURL;
-    
-    const ollama = createOllama({
-      baseURL: apiBase
-    });
-    
-    const model = cleanModelName(modelName || 'gemma3');
-    logger.debug(`[Document Processor] Ollama text generation with model: ${model}`);
-    
-    const { text } = await generateText({
-      model: ollama(model),
-      prompt: prompt,
-      system: system,
-      temperature: 0.3,
-      maxTokens: maxTokens,
-    });
-
-    // Ollama doesn't provide token usage information, so we estimate
-    // Rough estimation: ~4 characters per token (common approximation)
-    const estimatedPromptTokens = Math.ceil(prompt.length / 4);
-    const estimatedCompletionTokens = Math.ceil(text.length / 4);
-    const estimatedTotalTokens = estimatedPromptTokens + estimatedCompletionTokens;
-
-    logger.debug(
-      `[Document Processor] Ollama ${model}: generated ${text.length} characters (estimated: ${estimatedTotalTokens} tokens)`
-    );
-
-    // Create proper GenerateTextResult format with estimated usage
-    // Note: These are rough estimates since Ollama doesn't provide actual token counts
-    return {
-      text,
-      usage: {
-        promptTokens: estimatedPromptTokens,
-        completionTokens: estimatedCompletionTokens,
-        totalTokens: estimatedTotalTokens,
-      },
-    } as GenerateTextResult<any, any>;
-  } catch (error) {
-    logger.error(`[Document Processor] Ollama text generation error:`, error);
-    throw error;
   }
 }
