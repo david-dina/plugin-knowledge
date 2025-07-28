@@ -214,6 +214,20 @@
         "default": 150000,
         "sensitive": false
       },
+      "OLLAMA_MAX_CONCURRENT_REQUESTS": {
+        "type": "number",
+        "description": "Maximum concurrent requests for Ollama (limited to 3 for local deployment).",
+        "required": false,
+        "default": 3,
+        "sensitive": false
+      },
+      "OLLAMA_REQUESTS_PER_MINUTE": {
+        "type": "number",
+        "description": "Maximum requests per minute for Ollama (limited to 60 for local deployment).",
+        "required": false,
+        "default": 60,
+        "sensitive": false
+      },
       "KNOWLEDGE_PATH": {
         "type": "string",
         "description": "Filesystem path where the knowledge loader searches for documents. Overrides the default ./docs directory.",
