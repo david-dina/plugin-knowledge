@@ -216,14 +216,14 @@
       },
       "OLLAMA_MAX_CONCURRENT_REQUESTS": {
         "type": "number",
-        "description": "Maximum concurrent requests for Ollama (limited to 3 for local deployment).",
+        "description": "Maximum concurrent requests for Ollama (default to 2 for local deployment).",
         "required": false,
         "default": 3,
         "sensitive": false
       },
       "OLLAMA_REQUESTS_PER_MINUTE": {
         "type": "number",
-        "description": "Maximum requests per minute for Ollama (limited to 60 for local deployment).",
+        "description": "Maximum requests per minute for Ollama (default to 60 for local deployment).",
         "required": false,
         "default": 60,
         "sensitive": false
