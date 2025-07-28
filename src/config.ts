@@ -55,8 +55,8 @@ export function validateModelConfig(runtime?: IAgentRuntime): ModelConfig {
     const finalEmbeddingProvider = embeddingProvider;
 
     const textEmbeddingModel = embeddingProvider === 'ollama' 
-      ? (getSetting('TEXT_EMBEDDING') || 'nomic-embed-text')
-      : (getSetting('TEXT_EMBEDDING') ||
+      ? (getSetting('TEXT_EMBEDDING_MODEL') || 'nomic-embed-text')
+      : (getSetting('TEXT_EMBEDDING_MODEL') ||
          getSetting('OPENAI_EMBEDDING_MODEL') ||
          'text-embedding-3-small');
     const embeddingDimension =
