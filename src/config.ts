@@ -54,10 +54,9 @@ export function validateModelConfig(runtime?: IAgentRuntime): ModelConfig {
     // If not set, let the runtime handle embeddings (e.g., plugin-google-genai)
     const finalEmbeddingProvider = embeddingProvider;
 
-    // For Ollama, use OLLAMA_EMBEDDING_MODEL, otherwise use TEXT_EMBEDDING_MODEL
     const textEmbeddingModel = embeddingProvider === 'ollama' 
-      ? (getSetting('OLLAMA_EMBEDDING_MODEL') || 'nomic-embed-text')
-      : (getSetting('TEXT_EMBEDDING_MODEL') ||
+      ? (getSetting('TEXT_EMBEDDING') || 'nomic-embed-text')
+      : (getSetting('TEXT_EMBEDDING') ||
          getSetting('OPENAI_EMBEDDING_MODEL') ||
          'text-embedding-3-small');
     const embeddingDimension =
@@ -130,7 +129,7 @@ function validateConfigRequirements(config: ModelConfig, assumePluginOpenAI: boo
       logger.warn('OLLAMA_API_KEY not provided - using dummy key (this is often fine for Ollama)');
     }
     // Ollama uses model names from @elizaos/plugin-ollama
-    logger.info('Ollama embedding uses model names (OLLAMA_EMBEDDING_MODEL) from @elizaos/plugin-ollama');
+    logger.info('Ollama embedding uses model names (TEXT_EMBEDDING) from @elizaos/plugin-ollama');
   }
 
   // If no embedding provider is set, skip validation - let runtime handle it

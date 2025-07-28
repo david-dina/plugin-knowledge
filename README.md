@@ -140,7 +140,6 @@ OLLAMA_API_ENDPOINT=http://localhost:11434/api
 
 # These are the additional configs you need for knowledge plugin:
 EMBEDDING_PROVIDER=ollama
-OLLAMA_EMBEDDING_MODEL=nomic-embed-text  # Default: nomic-embed-text
 TEXT_PROVIDER=ollama
 
 You can also use below as a replacement for the above api endpoint:
@@ -210,6 +209,8 @@ When using Ollama as your provider, the plugin automatically applies conservativ
 OLLAMA_MAX_CONCURRENT_REQUESTS=2   # Limited to 2 concurrent requests (default)
 OLLAMA_REQUESTS_PER_MINUTE=60      # Limited to 60 requests per minute (default)
 ```
+
+**Note:** These Ollama rate limiting options are configurable and can be adjusted based on your system's capabilities and requirements.
 
 </details>
 
