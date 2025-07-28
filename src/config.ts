@@ -221,13 +221,23 @@ export async function getProviderRateLimits(runtime?: IAgentRuntime): Promise<Pr
     return process.env[key] || defaultValue;
   };
 
-  // Get rate limit values from runtime settings or use defaults
-  const maxConcurrentRequests = parseInt(getSetting('MAX_CONCURRENT_REQUESTS', '30'), 10);
-  const requestsPerMinute = parseInt(getSetting('REQUESTS_PER_MINUTE', '60'), 10);
-  const tokensPerMinute = parseInt(getSetting('TOKENS_PER_MINUTE', '150000'), 10);
-
   // CRITICAL FIX: Check TEXT_PROVIDER first since that's where rate limits are typically hit
   const primaryProvider = config.TEXT_PROVIDER || config.EMBEDDING_PROVIDER;
+
+  // Get rate limit values from runtime settings or use defaults
+  let maxConcurrentRequests = parseInt(getSetting('MAX_CONCURRENT_REQUESTS', '30'), 10);
+  let requestsPerMinute = parseInt(getSetting('REQUESTS_PER_MINUTE', '60'), 10);
+  let tokensPerMinute = parseInt(getSetting('TOKENS_PER_MINUTE', '150000'), 10);
+
+  // Check for Ollama-specific rate limits if using Ollama
+  if (primaryProvider === 'ollama') {
+    const ollamaMaxConcurrent = parseInt(getSetting('OLLAMA_MAX_CONCURRENT_REQUESTS', '2'), 10);
+    const ollamaRequestsPerMinute = parseInt(getSetting('OLLAMA_REQUESTS_PER_MINUTE', '60'), 10);
+    
+    // Use Ollama-specific limits if provided, otherwise use general limits
+    maxConcurrentRequests = ollamaMaxConcurrent || maxConcurrentRequests;
+    requestsPerMinute = ollamaRequestsPerMinute || requestsPerMinute;
+  }
 
   logger.debug(
     `[Document Processor] Rate limiting for ${primaryProvider}: ${requestsPerMinute} RPM, ${tokensPerMinute} TPM, ${maxConcurrentRequests} concurrent`
@@ -261,6 +271,16 @@ export async function getProviderRateLimits(runtime?: IAgentRuntime): Promise<Pr
         requestsPerMinute: Math.min(requestsPerMinute, 60),
         tokensPerMinute: Math.min(tokensPerMinute, 100000),
         provider: 'google',
+      };
+
+    case 'ollama':
+      // Ollama rate limits - conservative limits for local deployment
+      // Limit concurrent requests to 2 to prevent overwhelming local resources
+      return {
+        maxConcurrentRequests: Math.min(maxConcurrentRequests, 2),
+        requestsPerMinute: Math.min(requestsPerMinute, 60),
+        tokensPerMinute: Math.min(tokensPerMinute, 500000),
+        provider: 'ollama',
       };
 
     default:

@@ -151,6 +151,7 @@ OLLAMA_BASE_URL=http://localhost:11434
 
 - **Connection refused:** Make sure Ollama is running on `http://localhost:11434`
 - **Slow performance:** Use smaller models or increase system resources
+- **Rate limiting:** The plugin automatically limits to 3 concurrent requests to prevent overwhelming your local Ollama instance
 - **Plugin not found:** Make sure `@elizaos/plugin-ollama` is in your agent's plugins list
 
 </details>
@@ -199,6 +200,15 @@ REQUESTS_PER_MINUTE=60             # Rate limiting
 TOKENS_PER_MINUTE=150000           # Token rate limiting
 MAX_INPUT_TOKENS=4000              # Chunk size limit
 MAX_OUTPUT_TOKENS=4096             # Response size limit
+```
+
+### Ollama-Specific Rate Limiting
+
+When using Ollama as your provider, the plugin automatically applies conservative rate limits to prevent overwhelming your local Ollama instance:
+
+```env
+OLLAMA_MAX_CONCURRENT_REQUESTS=2   # Limited to 2 concurrent requests (default)
+OLLAMA_REQUESTS_PER_MINUTE=60      # Limited to 60 requests per minute (default)
 ```
 
 </details>
